@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mostly Synthetic Dataset für Gemma 4 12B</title>
+  <meta name="description" content="Vercel-inspirierte Anleitung: Mostly synthetic Dataset für Gemma 4 12B mit Unsloth – Datei- und Folder-Routing für PDF, Excel und JPG." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #171717;
+      --muted: #4d4d4d;
+      --soft: #666666;
+      --line: #ebebeb;
+      --surface: #fafafa;
+      --develop: #0a72ef;
+      --preview: #de1d8d;
+      --ship: #ff5b4f;
+      --link: #0072f5;
+      --blue-bg: #ebf5ff;
+      --blue-text: #0068d6;
+      --ring: rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+      --card: rgba(0,0,0,0.08) 0px 0px 0px 1px, rgba(0,0,0,0.04) 0px 2px 2px, rgba(0,0,0,0.04) 0px 8px 8px -8px, #fafafa 0px 0px 0px 1px;
+      --focus: hsla(212, 100%, 48%, 1);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: 'Geist', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      font-feature-settings: "liga" 1;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: geometricPrecision;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    a:focus-visible, button:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(255,255,255,.86);
+      backdrop-filter: blur(16px);
+      box-shadow: rgba(0,0,0,.08) 0 0 0 1px;
+    }
+    .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      height: 64px;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; letter-spacing: -0.28px; }
+    .triangle {
+      width: 0; height: 0;
+      border-left: 11px solid transparent;
+      border-right: 11px solid transparent;
+      border-bottom: 20px solid var(--text);
+      transform: translateY(-1px);
+    }
+    .nav-links { display: flex; align-items: center; gap: 24px; font-size: 14px; font-weight: 500; color: var(--muted); }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta {
+      background: var(--text);
+      color: white;
+      border-radius: 6px;
+      padding: 8px 14px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+    .hero {
+      position: relative;
+      padding: 108px 0 80px;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 20px auto auto 50%;
+      width: min(760px, 90vw);
+      height: 420px;
+      transform: translateX(-50%);
+      background:
+        radial-gradient(circle at 25% 25%, rgba(10,114,239,.16), transparent 34%),
+        radial-gradient(circle at 74% 30%, rgba(222,29,141,.13), transparent 30%),
+        radial-gradient(circle at 52% 72%, rgba(255,91,79,.12), transparent 34%);
+      filter: blur(42px);
+      pointer-events: none;
+    }
+    .hero-content { position: relative; max-width: 900px; margin: 0 auto; text-align: center; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      color: var(--blue-text);
+      background: var(--blue-bg);
+      font-size: 12px;
+      font-weight: 500;
+      box-shadow: rgba(0, 0, 0, .04) 0 0 0 1px inset;
+    }
+    h1 {
+      margin: 22px auto 0;
+      font-size: clamp(44px, 7vw, 82px);
+      line-height: .95;
+      letter-spacing: clamp(-4.6px, -0.055em, -2.4px);
+      font-weight: 600;
+      max-width: 980px;
+    }
+    .lead {
+      margin: 28px auto 0;
+      max-width: 760px;
+      color: var(--muted);
+      font-size: clamp(18px, 2vw, 22px);
+      line-height: 1.65;
+      font-weight: 400;
+    }
+    .hero-actions { margin-top: 36px; display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; }
+    .btn {
+      border: 0;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 0 16px;
+      border-radius: 6px;
+      font: 500 14px/1 'Geist', system-ui, sans-serif;
+    }
+    .btn.primary { background: var(--text); color: #fff; }
+    .btn.secondary { background: #fff; color: var(--text); box-shadow: rgb(235,235,235) 0 0 0 1px; }
+
+    .section { padding: 88px 0; }
+    .section.compact { padding-top: 48px; }
+    .section-header { max-width: 760px; margin-bottom: 32px; }
+    .eyebrow {
+      font-family: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--soft);
+      margin-bottom: 14px;
+    }
+    h2 {
+      margin: 0;
+      font-size: clamp(32px, 4vw, 48px);
+      line-height: 1.05;
+      letter-spacing: -2.4px;
+      font-weight: 600;
+    }
+    .section-copy { margin: 16px 0 0; color: var(--muted); font-size: 18px; line-height: 1.7; }
+
+    .grid { display: grid; gap: 16px; }
+    .grid.three { grid-template-columns: repeat(3, 1fr); }
+    .grid.two { grid-template-columns: repeat(2, 1fr); }
+    .card {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: var(--card);
+      padding: 24px;
+    }
+    .card.large { padding: 32px; }
+    .card h3 {
+      margin: 0 0 10px;
+      font-size: 24px;
+      line-height: 1.25;
+      letter-spacing: -0.96px;
+      font-weight: 600;
+    }
+    .card p { margin: 0; color: var(--muted); font-size: 16px; line-height: 1.6; }
+    .mono {
+      font-family: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .stat { font-size: 44px; letter-spacing: -2px; font-weight: 600; line-height: 1; margin-bottom: 12px; }
+    .muted { color: var(--muted); }
+
+    .pipeline {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      position: relative;
+    }
+    .step { min-height: 220px; }
+    .step .label { font-family: 'Geist Mono'; text-transform: uppercase; font-size: 12px; font-weight: 600; margin-bottom: 16px; }
+    .step:nth-child(1) .label { color: var(--develop); }
+    .step:nth-child(2) .label { color: var(--preview); }
+    .step:nth-child(3) .label { color: var(--ship); }
+
+    .code-card {
+      background: #171717;
+      color: #fff;
+      border-radius: 12px;
+      padding: 0;
+      overflow: hidden;
+      box-shadow: var(--card);
+    }
+    .code-title {
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      color: #a3a3a3;
+      font: 500 12px/1 'Geist Mono', monospace;
+      box-shadow: rgba(255,255,255,.12) 0 -1px 0 inset;
+    }
+    pre {
+      margin: 0;
+      padding: 20px;
+      overflow: auto;
+      font: 400 13px/1.7 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      color: #ededed;
+    }
+    .token-blue { color: #6bb7ff; }
+    .token-pink { color: #ff7ab8; }
+    .token-green { color: #7ee787; }
+    .token-gray { color: #a3a3a3; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: var(--ring);
+      font-size: 14px;
+    }
+    th, td { text-align: left; padding: 14px 16px; box-shadow: rgb(235,235,235) 0 -1px 0 inset; vertical-align: top; }
+    th { background: var(--surface); font-weight: 600; font-size: 13px; color: var(--text); }
+    td { color: var(--muted); line-height: 1.5; }
+    td strong { color: var(--text); font-weight: 500; }
+
+    .callout {
+      margin-top: 32px;
+      padding: 24px;
+      border-radius: 8px;
+      box-shadow: var(--ring);
+      background: linear-gradient(180deg, #fff, #fafafa);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 20px;
+      align-items: center;
+    }
+    .callout strong { display: block; font-size: 20px; letter-spacing: -0.6px; margin-bottom: 6px; }
+    .callout span { color: var(--muted); line-height: 1.6; }
+
+    .footer { padding: 56px 0; box-shadow: rgba(0,0,0,.08) 0 -1px 0; color: var(--muted); font-size: 14px; }
+    .footer-inner { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+
+    @media (max-width: 860px) {
+      .nav-links a { display: none; }
+      .hero { padding-top: 76px; }
+      .grid.three, .grid.two, .pipeline { grid-template-columns: 1fr; }
+      .callout { grid-template-columns: 1fr; }
+      h1 { letter-spacing: -2.8px; }
+      h2 { letter-spacing: -1.7px; }
+      .section { padding: 64px 0; }
+      table { display: block; overflow-x: auto; white-space: nowrap; }
+    }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="#top" aria-label="Start"><span class="triangle"></span><span>Gemma File Routing</span></a>
+      <nav class="nav-links" aria-label="Hauptnavigation">
+        <a href="#architecture">Architektur</a>
+        <a href="#dataset">Dataset</a>
+        <a href="#training">Unsloth</a>
+        <a href="#eval">Evaluation</a>
+        <a class="nav-cta" href="#roadmap">Roadmap</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="container hero-content">
+        <div class="badge">Vercel-style guide · Gemma 4 12B · Unsloth</div>
+        <h1>Mostly synthetic Dataset für Datei- und Folder-Routing.</h1>
+        <p class="lead">Ein produktionsnaher Plan für PDF, Excel und JPG: nicht Rohdateien fine-tunen, sondern extrahierte Evidenz in stabile Routing-Entscheidungen als strict JSON übersetzen.</p>
+        <div class="hero-actions">
+          <a class="btn primary" href="#roadmap">Roadmap ansehen</a>
+          <a class="btn secondary" href="#schema">Schema kopieren</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="architecture" class="section compact">
+      <div class="container">
+        <div class="section-header">
+          <div class="eyebrow">Core Architecture</div>
+          <h2>Pipeline zuerst. Fine-tune danach.</h2>
+          <p class="section-copy">Gemma soll nicht PDF-Bytes, Excel-Dateien oder JPG-Pixel direkt „verstehen“. Die robuste Lösung trennt Extraktion, Retrieval, Klassifikation und LLM-Entscheidung.</p>
+        </div>
+        <div class="pipeline">
+          <article class="card step">
+            <div class="label">Develop</div>
+            <h3>Extract</h3>
+            <p>PDF-Text, OCR, Tabellen, Excel-Sheets, JPG-EXIF, Image-Summary und Dateipfad in ein normalisiertes Evidence-Format bringen.</p>
+          </article>
+          <article class="card step">
+            <div class="label">Preview</div>
+            <h3>Retrieve & classify</h3>
+            <p>Ähnliche gelabelte Dateien holen, klassische Baselines trainieren und Top-k Routes mit Confidence erzeugen.</p>
+          </article>
+          <article class="card step">
+            <div class="label">Ship</div>
+            <h3>Gemma decides JSON</h3>
+            <p>Gemma 4 12B lernt: Evidence + Taxonomie + Kandidaten → doc_type, route, confidence, review flag und reason_codes.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="dataset" class="section">
+      <div class="container">
+        <div class="section-header">
+          <div class="eyebrow">Dataset Mix</div>
+          <h2>Mostly synthetic, aber realitätsverankert.</h2>
+          <p class="section-copy">Synthetic Data sollte aus echter Ordnerstruktur, echten Dateinamen und echten Extraktionsartefakten abgeleitet werden. Frei erfundene Beispiele sind nur Ergänzung.</p>
+        </div>
+        <div class="grid three">
+          <div class="card"><div class="stat">20–40%</div><h3>Real / weak real</h3><p>Existierende Folder, Pfade und manuell geprüfte Beispiele als Anchor gegen synthetischen Drift.</p></div>
+          <div class="card"><div class="stat">30–50%</div><h3>Synthetic variants</h3><p>Noise, fehlende OCR, andere Dateinamen, andere Sprachen, Scan statt PDF, reduzierte Evidenz.</p></div>
+          <div class="card"><div class="stat">10–20%</div><h3>Hard negatives</h3><p>Ähnliche Dateien mit anderer Route: Invoice vs Purchase Order vs Supplier Contract.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="modalities" class="section">
+      <div class="container">
+        <div class="section-header">
+          <div class="eyebrow">Modalities</div>
+          <h2>Was pro Dateityp extrahiert wird.</h2>
+        </div>
+        <table aria-label="Extraktion pro Dateityp">
+          <thead><tr><th>Dateityp</th><th>Extraktion</th><th>Warum</th></tr></thead>
+          <tbody>
+            <tr><td><strong>PDF</strong></td><td>Embedded text, Page count, OCR bei Scans, Layout, Tabellen, PDF metadata.</td><td>Routing hängt oft an Rechnungsnummern, Parteien, Summen, Verträgen und Layoutsignalen.</td></tr>
+            <tr><td><strong>Excel / CSV</strong></td><td>Sheet names, Header candidates, Column types, Sample rows, Formula count, Pivot/Table-Hints.</td><td>Große Tabellen werden kompakt repräsentiert; kein riesiger Raw-Dump ins Kontextfenster.</td></tr>
+            <tr><td><strong>JPG / PNG</strong></td><td>OCR, Image caption, EXIF, Screenshot/Receipt/Form-Klasse, Vision embedding.</td><td>Bei textlastigen Bildern ist OCR wichtiger als Vision-Finetuning; VLM-Summary hilft bei visuellen Hinweisen.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="schema" class="section">
+      <div class="container">
+        <div class="section-header">
+          <div class="eyebrow">Training Record</div>
+          <h2>Das Fine-tune-Ziel: Evidence → strict JSON.</h2>
+          <p class="section-copy">Speichere Beispiele als Chat-Dataset für Gemma 4. Output bleibt maschinenlesbar, validierbar und leicht evaluierbar.</p>
+        </div>
+        <div class="code-card">
+          <div class="code-title"><span>dataset-example.json</span><span>strict output</span></div>
+          <pre>{
+  <span class="token-blue">"messages"</span>: [
+    { <span class="token-blue">"role"</span>: <span class="token-green">"system"</span>, <span class="token-blue">"content"</span>: <span class="token-green">"Classify files into routes. Return strict JSON only."</span> },
+    { <span class="token-blue">"role"</span>: <span class="token-green">"user"</span>, <span class="token-blue">"content"</span>: {
+      <span class="token-blue">"path"</span>: <span class="token-green">"/Finance/Vendors/2024/acme_invoice.pdf"</span>,
+      <span class="token-blue">"mime_type"</span>: <span class="token-green">"application/pdf"</span>,
+      <span class="token-blue">"ocr_text"</span>: [<span class="token-green">"Invoice No. 1029"</span>, <span class="token-green">"Total Due: 428.00 EUR"</span>],
+      <span class="token-blue">"allowed_routes"</span>: [<span class="token-green">"Finance/Accounts Payable"</span>, <span class="token-green">"Archive/Unknown"</span>]
+    }},
+    { <span class="token-blue">"role"</span>: <span class="token-green">"assistant"</span>, <span class="token-blue">"content"</span>: {
+      <span class="token-blue">"doc_type"</span>: <span class="token-green">"vendor_invoice"</span>,
+      <span class="token-blue">"route"</span>: <span class="token-green">"Finance/Accounts Payable"</span>,
+      <span class="token-blue">"confidence"</span>: <span class="token-pink">0.91</span>,
+      <span class="token-blue">"requires_human_review"</span>: <span class="token-pink">false</span>,
+      <span class="token-blue">"reason_codes"</span>: [<span class="token-green">"invoice_number_found"</span>, <span class="token-green">"total_due_found"</span>]
+    }}
+  ],
+  <span class="token-blue">"meta"</span>: { <span class="token-blue">"source"</span>: <span class="token-green">"synthetic_variant"</span>, <span class="token-blue">"modality"</span>: <span class="token-green">"pdf"</span> }
+}</pre>
+        </div>
+      </div>
+    </section>
+
+    <section id="training" class="section">
+      <div class="container">
+        <div class="section-header">
+          <div class="eyebrow">Unsloth Setup</div>
+          <h2>Gemma 4 12B als QLoRA-Router.</h2>
+        </div>
+        <div class="grid two">
+          <div class="code-card">
+            <div class="code-title"><span>load-model.py</span><span>FastModel</span></div>
+            <pre><span class="token-pink">from</span> unsloth <span class="token-pink">import</span> FastModel
+
+model, tokenizer = FastModel.from_pretrained(
+    model_name = <span class="token-green">"unsloth/gemma-4-12b-it"</span>,
+    max_seq_length = <span class="token-pink">8192</span>,
+    dtype = <span class="token-pink">None</span>,
+    load_in_4bit = <span class="token-pink">True</span>,
+    full_finetuning = <span class="token-pink">False</span>,
+)</pre>
+          </div>
+          <div class="code-card">
+            <div class="code-title"><span>lora.py</span><span>evidence-only first</span></div>
+            <pre>model = FastModel.get_peft_model(
+    model,
+    finetune_vision_layers = <span class="token-pink">False</span>,
+    finetune_language_layers = <span class="token-pink">True</span>,
+    finetune_attention_modules = <span class="token-pink">True</span>,
+    finetune_mlp_modules = <span class="token-pink">True</span>,
+    r = <span class="token-pink">16</span>,
+    lora_alpha = <span class="token-pink">16</span>,
+    lora_dropout = <span class="token-pink">0</span>,
+)</pre>
+          </div>
+        </div>
+        <div class="callout">
+          <div><strong>Empfehlung</strong><span>Vision-Layer zunächst auslassen. JPG/PDF visuell extern beschreiben lassen und Gemma auf normalisierte Evidenz trainieren.</span></div>
+          <a class="btn secondary" href="https://unsloth.ai/docs/models/gemma-4/train.md">Unsloth Docs</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="eval" class="section">
+      <div class="container">
+        <div class="section-header">
+          <div class="eyebrow">Evaluation</div>
+          <h2>Nicht random splitten.</h2>
+          <p class="section-copy">Random Splits überschätzen Performance, weil Vendor, Template oder Folder-Struktur leaken können.</p>
+        </div>
+        <div class="grid three">
+          <article class="card"><h3>Split by folder</h3><p>Testet neue Ablagebereiche und verhindert, dass Pfad-Patterns auswendig gelernt werden.</p></article>
+          <article class="card"><h3>Split by vendor</h3><p>Rechnungen und Verträge neuer Absender werden realistischer bewertet.</p></article>
+          <article class="card"><h3>Split by template</h3><p>Verhindert, dass Layouts statt Dokumenttypen memorisiert werden.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="roadmap" class="section">
+      <div class="container">
+        <div class="section-header">
+          <div class="eyebrow">Roadmap</div>
+          <h2>Von Foldern zum Fine-tune.</h2>
+        </div>
+        <table aria-label="Roadmap">
+          <thead><tr><th>Phase</th><th>Deliverable</th><th>Akzeptanzkriterium</th></tr></thead>
+          <tbody>
+            <tr><td><strong>1. Ingestion</strong></td><td>Normalized records für PDF, Excel, JPG.</td><td>Jede Datei hat Metadaten, Extraktionsstatus und File-ID.</td></tr>
+            <tr><td><strong>2. Taxonomie</strong></td><td>doc_type, route, sensitivity, workflow_action.</td><td>Alle Outputs sind per JSON Schema validierbar.</td></tr>
+            <tr><td><strong>3. Weak labels</strong></td><td>Folder-derived Labels plus Audit-Sample.</td><td>5–10% manuell geprüft, Fehlerklassen bekannt.</td></tr>
+            <tr><td><strong>4. Synthetic variants</strong></td><td>Noise, hard negatives, missing evidence.</td><td>Judge Score ≥ 4/5, keine Duplikate.</td></tr>
+            <tr><td><strong>5. Baselines</strong></td><td>Path/Text embeddings + classifier.</td><td>Vergleich gegen Gemma SFT möglich.</td></tr>
+            <tr><td><strong>6. QLoRA SFT</strong></td><td>Gemma 4 12B evidence-to-JSON model.</td><td>Top-1/Top-3 Accuracy, Macro F1, Review-Rate gemessen.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <span>Gemma File Routing Guide</span>
+      <span>Vercel-inspired single-file HTML · synthetic dataset strategy · Unsloth QLoRA</span>
+    </div>
+  </footer>
+</body>
+</html>
